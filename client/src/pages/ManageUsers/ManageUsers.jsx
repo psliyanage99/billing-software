@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react';
-import UserForm from '../../components/UserForm/UserForm.jsx';
-import UsersList from '../../components/UsersList/UsersList.jsx';
-import { fetchUsers } from '../../Service/UserService.js';
 import './ManageUsers.css';
-import toast from 'react-hot-toast';
+import UserForm from "../../components/UserForm/UserForm.jsx";
+import UsersList from "../../components/UsersList/UsersList.jsx";
+import {useEffect, useState} from "react";
+import toast from "react-hot-toast";
+import {fetchUsers} from "../../Service/UserService.js";
 
 const ManageUsers = () => {
-    
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -37,4 +36,5 @@ const ManageUsers = () => {
         </div>
     )
 }
+
 export default ManageUsers;
