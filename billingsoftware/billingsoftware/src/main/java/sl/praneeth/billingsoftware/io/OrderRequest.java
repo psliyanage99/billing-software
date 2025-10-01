@@ -19,6 +19,8 @@ public class OrderRequest {
     private Double subtotal;
     private Double tax;
     private Double grandTotal;
+    private Double cashReceived;
+    private Double balance;
     private String paymentMethod;
 
     @Data

@@ -19,6 +19,8 @@ public class OrderResponse {
     private List<OrderResponse.OrderItemResponse> items;
     private Double subtotal;
     private Double tax;
+    private Double cashReceived;
+    private Double balance;
     private Double grandTotal;
     private PaymentMethod paymentMethod;
     private LocalDateTime createdAt;

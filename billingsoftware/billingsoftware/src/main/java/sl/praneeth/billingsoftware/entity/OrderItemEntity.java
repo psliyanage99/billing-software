@@ -18,7 +18,6 @@ public class OrderItemEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String itemId;
     private String name;
     private Double price;

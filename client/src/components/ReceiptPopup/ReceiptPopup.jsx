@@ -1,71 +1,116 @@
+import { useEffect } from 'react';
 import './ReceiptPopup.css';
 import './Print.css';
 
 const ReceiptPopup = ({orderDetails, onClose, onPrint}) => {
+    useEffect(() => {
+        const handleKeyPress = (e) => {
+            if (e.key === 'Enter') {
+                onPrint();       
+                setTimeout(() => {
+                    onClose();   
+                    window.location.reload();
+                }, 500);          
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyPress);
+
+        // cleanup
+        return () => {
+            window.removeEventListener('keydown', handleKeyPress);
+        };
+    }, [onPrint, onClose]);
     return (
         <div className='receipt-popup-overlay text-dark'>
             <div className="receipt-popup">
-                <div className="text-center mb-4">
-                    <i className="bi bi-check-circle-fill text-success fs-1"></i>
+
+                <h4 className="text-center mb-0">NEW LOVER BIG CiTY</h4>
+                <p className="text-center mb-0">Weeraketiya</p>
+                <p className="text-center mb-2">Tel: 071-8899024</p>
+
+                <hr className="my-2" />
+
+                <div className="d-flex justify-content-between">
+                    <span>{new Date(orderDetails.createdAt || Date.now()).toLocaleDateString()}</span>
+                    <span>{new Date(orderDetails.createdAt || Date.now()).toLocaleTimeString()}</span>
                 </div>
-                <h3 className="text-center mb-4">Order Receipt</h3>
-                <p>
-                    <strong>Order ID:</strong> {orderDetails.orderId}
-                </p>
-                <p>
-                    <strong>Name:</strong> {orderDetails.customerName}
-                </p>
-                <p>
-                    <strong>Phone:</strong> {orderDetails.phoneNumber}
-                </p>
-                <hr className="my-3" />
-                <h5 className="mb-3">Item Ordered</h5>
-                <div className="cart-items-scrollable">
-                    {orderDetails.items.map((item, index) => (
-                        <div key={index} className="d-flex justify-content-between mb-2">
-                            <span>{item.name} X {item.quantity}</span>
-                            <span>Rs.{(item.price * item.quantity).toFixed(2)}</span>
-                        </div>
-                    ))}
-                </div>
-                <hr className="my-3" />
                 <div className="d-flex justify-content-between mb-2">
-                    <span>
-                        <strong>Subtotal:</strong>
-                    </span>
+                    <span>Cashier: {orderDetails.cashier || "Praneeth"}</span>
+                    <span>Order No: {orderDetails.orderId}</span>
+                </div>
+
+                <hr className="my-2" />
+
+                <p className="mb-1"><strong>Customer Name:</strong> {orderDetails.customerName}</p>
+                <p className="mb-2"><strong>Customer Phone:</strong> {orderDetails.phoneNumber}</p>
+
+                <hr className="my-2" />
+
+                <div className="mb-2 fw-bold d-flex justify-content-between">
+                    <span>NO  ITEM</span>
+                    <span>QTY  PRICE</span>
+                </div>
+
+                {orderDetails.items.map((item, index) => (
+                    <div key={index} className="d-flex justify-content-between mb-1">
+                        <span>{index + 1}. {item.name}</span>
+                        <span>{item.quantity} x {item.price.toFixed(2)}</span>
+                    </div>
+                ))}
+
+                <hr className="my-2" />
+
+                <div className="d-flex justify-content-between mb-1">
+                    <span>Sub Total</span>
                     <span>Rs.{orderDetails.subtotal.toFixed(2)}</span>
                 </div>
-                <div className="d-flex justify-content-between mb-2">
-                    <span>
-                        <strong>Tax (1%):</strong>
-                    </span>
+                
+                <div className="d-flex justify-content-between mb-1">
+                    <span>Tax (0%)</span>
                     <span>Rs.{orderDetails.tax.toFixed(2)}</span>
                 </div>
-                <div className="d-flex justify-content-between mb-2">
-                    <span>
-                        <strong>Grand Total:</strong>
-                    </span>
+
+                <div className="d-flex justify-content-between fw-bold mb-1">
+                    <span>Net Total</span>
                     <span>Rs.{orderDetails.grandTotal.toFixed(2)}</span>
                 </div>
+
+
+                {orderDetails.paymentMethod === "CASH" && (
+                <>
+                    <div className="d-flex justify-content-between mb-1">
+                        <span>CASH</span>
+                        <span>Rs.{orderDetails.cashReceived?.toFixed(2)}</span>
+                    </div>
+                    <div className="d-flex justify-content-between mb-1">
+                        <span>Balance</span>
+                        <span>Rs.{orderDetails.balance?.toFixed(2)}</span>
+                    </div>
+                </>
+                )}
+
+                {orderDetails.paymentMethod === "UPI" && (
+                    <>
+                        <p className="mb-1"><strong>Razorpay Order ID:</strong> {orderDetails.razorpayOrderId}</p>
+                        <p className="mb-2"><strong>Razorpay Payment ID:</strong> {orderDetails.razorpayPaymentId}</p>
+                    </>
+                )}
+                
+                <hr className="my-2" />
+
                 <p>
                     <strong>Payment Method:</strong> {orderDetails.paymentMethod}
                 </p>
-                {
-                    orderDetails.paymentMethod === "UPI" && (
-                        <>
-                            <p>
-                                <strong>Razorpay Order ID: </strong> {orderDetails.razorpayOrderId}
-                            </p>
-                            <p>
-                                <strong>Razorpay Payment ID: </strong> {orderDetails.razorpayPaymentId}
-                            </p>
-                        </>
-                    )
-                }
-                <div className="d-flex justify-content-end gap-3 mt-4">
-                    <button className='btn btn-warning' onClick={onPrint}>Print Receipt</button>
-                    <button className='btn btn-danger' onClick={onClose}>Close</button>
+
+                <p className="text-center small">Thank you for shopping with us!</p>
+
+                <div className="d-flex justify-content-end gap-3 mt-3">
+                    <button className="btn btn-warning" onClick={onPrint}>Print Receipt</button>
+                    <button className="btn btn-danger" onClick={onClose}>Close</button>
                 </div>
+                
+                
             </div>
         </div>
     )

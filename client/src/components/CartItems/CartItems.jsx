@@ -5,7 +5,7 @@ import {AppContext} from "../../context/AppContext.jsx";
 const CartItems = () => {
     const {cartItems, removeFromCart, updateQuantity} = useContext(AppContext);
     return (
-        <div className="p-3 h-100 overflow-y-auto">
+        <div className="  overflow-y-auto">
             {cartItems.length === 0 ? (
                 <p className="text-light">
                     Your cart is empty.
@@ -13,7 +13,7 @@ const CartItems = () => {
             ) : (
                 <div className="cart-items-list">
                     {cartItems.map((item, index) => (
-                        <div key={index} className='cart-item mb-3 p-3 bg-dark rounded'>
+                        <div key={index} className='cart-item mb-2 p-3 bg-dark rounded'>
                             <div className="d-flex justify-content-between align-items-center mb-2">
                                 <h6 className="mb-0 text-light">{item.name}</h6>
                                 <p className="mb-0 text-light">

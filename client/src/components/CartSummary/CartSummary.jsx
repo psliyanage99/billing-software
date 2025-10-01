@@ -1,18 +1,23 @@
 import './CartSummary.css';
-import {useContext, useState} from "react";
-import {AppContext} from "../../context/AppContext.jsx";
+import { useContext, useState } from "react";
+import { AppContext } from "../../context/AppContext.jsx";
 import ReceiptPopup from "../ReceiptPopup/ReceiptPopup.jsx";
-import {createOrder, deleteOrder} from "../../Service/OrderService.js";
+import { createOrder, deleteOrder } from "../../Service/OrderService.js";
 import toast from "react-hot-toast";
-import {createRazorpayOrder, verifyPayment} from "../../Service/PaymentService.js";
-import {AppConstants} from "../../utill/constants.js";
+import { createRazorpayOrder, verifyPayment } from "../../Service/PaymentService.js";
+import { AppConstants } from "../../utill/constants.js";
 
-const CartSummary = ({customerName, mobileNumber, setMobileNumber, setCustomerName }) => {
-    const {cartItems, clearCart} = useContext(AppContext);
+const CartSummary = ({ customerName, mobileNumber, setMobileNumber, setCustomerName }) => {
+    const { cartItems, clearCart } = useContext(AppContext);
 
     const [isProcessing, setIsProcessing] = useState(false);
     const [orderDetails, setOrderDetails] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
+
+    // ✅ NEW STATES
+    const [cashInputVisible, setCashInputVisible] = useState(false);
+    const [cashReceived, setCashReceived] = useState("");
+    const [balance, setBalance] = useState(0);
 
     const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
     const tax = totalAmount * 0.01;
@@ -22,26 +27,18 @@ const CartSummary = ({customerName, mobileNumber, setMobileNumber, setCustomerNa
         setCustomerName("");
         setMobileNumber("");
         clearCart();
-    }
+        setCashReceived("");
+        setBalance(0);
+    };
 
     const placeOrder = () => {
         setShowPopup(true);
-        clearAll();
-    }
+        // clearAll();
+    };
 
-    const handlePrintReceipt = () => {
-        window.print();
-    }
+    const handlePrintReceipt = () => window.print();
 
-    // const loadRazorpayScript = () => {
-    //     return new Promise((resolve, reject) => {
-    //         const script = document.createElement('script');
-    //         script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    //         script.onload = () => resolve(true);
-    //         script.onerror = () => resolve(false);
-    //         document.body.appendChild(script);
-    //     })
-    // }
+    
 
     const deleteOrderOnFailure = async (orderId) => {
         try {
@@ -50,20 +47,36 @@ const CartSummary = ({customerName, mobileNumber, setMobileNumber, setCustomerNa
             console.error(error);
             toast.error("Something went wrong");
         }
-    }
+    };
 
-    
-    const completePayment = async (paymentMode) => {
+    // 🟢 When user clicks CASH button → show cash input field
+    const handleCashClick = () => {
         if (!customerName || !mobileNumber) {
             toast.error("Please enter customer details");
             return;
         }
-    
-
         if (cartItems.length === 0) {
             toast.error("Your cart is empty");
             return;
         }
+        setCashInputVisible(true);
+    };
+
+    // 🟢 Capture cash input and calculate balance
+    const handleCashChange = (e) => {
+        const value = parseFloat(e.target.value) || 0;
+        setCashReceived(value);
+        setBalance(value - grandTotal);
+    };
+
+
+    // 🟢 Confirm payment after entering cash
+    const confirmCashPayment = async () => {
+        if (cashReceived < grandTotal) {
+            toast.error("Cash is less than total amount");
+            return;
+        }
+
         const orderData = {
             customerName,
             phoneNumber: mobileNumber,
@@ -71,149 +84,124 @@ const CartSummary = ({customerName, mobileNumber, setMobileNumber, setCustomerNa
             subtotal: totalAmount,
             tax,
             grandTotal,
-            paymentMethod: paymentMode.toUpperCase()
-        }
+            paymentMethod: "CASH",
+            cashReceived,
+            balance
+        };
+
         setIsProcessing(true);
         try {
             const response = await createOrder(orderData);
-            const savedData = response.data;
-            if (response.status === 201 && paymentMode === "cash") {
-                toast.success("Cash received");
-                setOrderDetails(savedData);
-            } else if (response.status === 201 && paymentMode === "upi") {
-                const razorpayLoaded = await loadRazorpayScript();
-                if (!razorpayLoaded) {
-                    toast.error('Unable to load razorpay');
-                    await deleteOrderOnFailure(savedData.orderId);
-                    return;
-                }
-
-                //create razorpay order
-                // const razorpayResponse = await createRazorpayOrder({amount: grandTotal, currency: 'INR'});
-                // const options = {
-                //     key: AppConstants.RAZORPAY_KEY_ID,
-                //     amount: razorpayResponse.data.amount,
-                //     currency: razorpayResponse.data.currency,
-                //     order_id: razorpayResponse.data.id,
-                //     name: "My Retail Shop",
-                //     description: "Order payment",
-                //     handler: async function (response) {
-                //         await verifyPaymentHandler(response,  savedData);
-                //     },
-                //     prefill: {
-                //         name: customerName,
-                //         contact: mobileNumber
-                //     },
-                //     theme: {
-                //         color: "#3399cc"
-                //     },
-                //     modal: {
-                //         ondismiss: async () => {
-                //             await deleteOrderOnFailure(savedData.orderId);
-                //             toast.error("Payment cancelled");
-                //         }
-                //     },
-                // };
-                // const rzp = new window.Razorpay(options);
-                // rzp.on("payment.failed", async (response) => {
-                //     await deleteOrderOnFailure(savedData.orderId);
-                //     toast.error("Payment failed");
-                //     console.error(response.error.description);
-                // });
-                // rzp.open();
+            if (response.status === 201) {
+                toast.success("Cash payment recorded");
+                setOrderDetails(response.data);
+                toast.success("Now click 'Place Order' to generate receipt");
+                setCashInputVisible(false);
             }
-        }catch(error) {
+        } catch (error) {
             console.error(error);
-            toast.error("Payment processing failed");
+            toast.error("Cash payment failed");
         } finally {
             setIsProcessing(false);
         }
-    }
+    };
 
-    // const verifyPaymentHandler = async (response, savedOrder) => {
-    //     const paymentData = {
-    //         razorpayOrderId: response.razorpay_order_id,
-    //         razorpayPaymentId: response.razorpay_payment_id,
-    //         razorpaySignature: response.razorpay_signature,
-    //         orderId: savedOrder.orderId
-    //     };
-    //     try {
-    //         const paymentResponse = await verifyPayment(paymentData);
-    //         if (paymentResponse.status === 200) {
-    //             toast.success("Payment successful");
-    //             setOrderDetails({
-    //                 ...savedOrder,
-    //                 paymentDetails: {
-    //                     razorpayOrderId: response.razorpay_order_id,
-    //                     razorpayPaymentId: response.razorpay_payment_id,
-    //                     razorpaySignature: response.razorpay_signature
-    //                 },
-    //             });
-    //         }else {
-    //             toast.error("Payment processing failed");
-    //         }
-    //     } catch (error) {
-    //         console.error(error);
-    //         toast.error("Payment failed");
-    //     }
-    // };
-
-    // console.log("CartSummary values:", customerName, mobileNumber);
+    
 
     return (
         <div className="mt-2">
             <div className="cart-summary-details">
                 <div className="d-flex justify-content-between mb-2">
-                    <span className="text-light">Item: </span>
+                    <span className="text-light">Items:</span>
                     <span className="text-light">Rs.{totalAmount.toFixed(2)}</span>
                 </div>
                 <div className="d-flex justify-content-between mb-2">
-                    <span className="text-light">Tax (1%):</span>
+                    <span className="text-light">Tax (0%):</span>
                     <span className="text-light">Rs.{tax.toFixed(2)}</span>
                 </div>
-                <div className="d-flex justify-content-between mb-4">
+                <div className="d-flex justify-content-between mb-3">
                     <span className="text-light">Total:</span>
                     <span className="text-light">Rs.{grandTotal.toFixed(2)}</span>
                 </div>
+
+                {/* 🟢 Show Cash & Balance after input */}
+                {/* {cashReceived > 0 && (
+                    <>
+                        <div className="d-flex justify-content-between mb-2">
+                            <span className="text-light">Cash:</span>
+                            <span className="text-light">Rs.{cashReceived.toFixed(2)}</span>
+                        </div>
+                        <div className="d-flex justify-content-between mb-2">
+                            <span className="text-light">Balance:</span>
+                            <span className="text-light">Rs.{balance.toFixed(2)}</span>
+                        </div>
+                    </>
+                )} */}
             </div>
 
-             <div className="d-flex gap-3">
-                <button className="btn btn-success flex-grow-1"
-                    onClick={() => completePayment("cash")}
+            {/* 🟢 Cash Input Field */}
+            {cashInputVisible && (
+                <div className="mb-3">
+                    <input
+                        type="number"
+                        className="form-control"
+                        placeholder="Enter cash received"
+                        value={cashReceived}
+                        onChange={handleCashChange}
+                        onKeyDown={(e) => e.key === "Enter" && confirmCashPayment()}
+                    />
+                    <button
+                        className="btn btn-success mt-2 w-100"
+                        onClick={confirmCashPayment}
                         disabled={isProcessing}
+                    >
+                        Confirm Cash Payment
+                    </button>
+                </div>
+            )}
+
+            <div className="d-flex gap-3">
+                <button
+                    className="btn btn-success flex-grow-1"
+                    onClick={handleCashClick}
+                    disabled={isProcessing}
                 >
-                    {isProcessing ? "Processing...": "Cash"}
+                    {isProcessing ? "Processing..." : "Cash"}
                 </button>
-                <button className="btn btn-primary flex-grow-1"
-                        onClick={() => completePayment("upi")}
-                        disabled={isProcessing}
+                <button
+                    className="btn btn-primary flex-grow-1"
+                    onClick={() => toast.error("Use Razorpay for UPI")}
+                    disabled={isProcessing}
                 >
-                    {isProcessing ? "Processing...": "UPI"}
+                    UPI
                 </button>
             </div>
+
             <div className="d-flex gap-3 mt-3">
-                <button className="btn btn-warning flex-grow-1"
+                <button
+                    className="btn btn-warning flex-grow-1"
                     onClick={placeOrder}
                     disabled={isProcessing || !orderDetails}
                 >
                     Place Order
                 </button>
             </div>
-            {
-                showPopup && (
-                    <ReceiptPopup
-                        orderDetails={{
-                            ...orderDetails,
-                            razorpayOrderId: orderDetails.paymentDetails?.razorpayOrderId,
-                            razorpayPaymentId: orderDetails.paymentDetails?.razorpayPaymentId,
-                        }}
-                        onClose={() => setShowPopup(false)}
-                        onPrint={handlePrintReceipt}
-                    />
-                )
-            }
+
+            {showPopup && (
+                <ReceiptPopup
+                    orderDetails={{
+                        ...orderDetails,
+                        cashReceived: cashReceived,
+                        balance: balance
+            }}
+                    onClose={() => setShowPopup(false)}
+                    onPrint={handlePrintReceipt}
+                />
+            )}
+
+            
         </div>
-    )
-}
+    );
+};
 
 export default CartSummary;

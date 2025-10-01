@@ -54,6 +54,8 @@ public class OrderServiceImpl implements OrderService {
                 .subtotal(newOrder.getSubtotal())
                 .tax(newOrder.getTax())
                 .grandTotal(newOrder.getGrandTotal())
+                .cashReceived(newOrder.getCashReceived())
+                .balance(newOrder.getBalance())
                 .paymentMethod(newOrder.getPaymentMethod())
                 .items(newOrder.getItems().stream()
                         .map(this::convertToItemResponse)
@@ -80,6 +82,8 @@ public class OrderServiceImpl implements OrderService {
                 .phoneNumber(request.getPhoneNumber())
                 .subtotal(request.getSubtotal())
                 .tax(request.getTax())
+                .cashReceived(request.getCashReceived())
+                .balance(request.getBalance())
                 .grandTotal(request.getGrandTotal())
                 .paymentMethod(PaymentMethod.valueOf(request.getPaymentMethod()))
                 .build();
