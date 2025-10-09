@@ -25,9 +25,9 @@ const ReceiptPopup = ({orderDetails, onClose, onPrint}) => {
         <div className='receipt-popup-overlay text-dark'>
             <div className="receipt-popup">
 
-                <h4 className="text-center mb-0">NEW LOVER BIG CiTY</h4>
-                <p className="text-center mb-0">Weeraketiya</p>
-                <p className="text-center mb-2">Tel: 071-8899024</p>
+                <h4 className="text-center mb-0">NEW CITY RESTAURANT</h4>
+                <p className="text-center mb-0">Tangalle</p>
+                <p className="text-center mb-2">Tel: 071-8899048</p>
 
                 <hr className="my-2" />
 
@@ -90,10 +90,9 @@ const ReceiptPopup = ({orderDetails, onClose, onPrint}) => {
                 </>
                 )}
 
-                {orderDetails.paymentMethod === "UPI" && (
+                {orderDetails.paymentMethod === "Card" && (
                     <>
-                        <p className="mb-1"><strong>Razorpay Order ID:</strong> {orderDetails.razorpayOrderId}</p>
-                        <p className="mb-2"><strong>Razorpay Payment ID:</strong> {orderDetails.razorpayPaymentId}</p>
+                        <p className="mb-1"><strong>Your payment is done by card.</strong> </p>
                     </>
                 )}
                 
@@ -107,7 +106,15 @@ const ReceiptPopup = ({orderDetails, onClose, onPrint}) => {
 
                 <div className="d-flex justify-content-end gap-3 mt-3">
                     <button className="btn btn-warning" onClick={onPrint}>Print Receipt</button>
-                    <button className="btn btn-danger" onClick={onClose}>Close</button>
+                    <button 
+                        className="btn btn-danger" 
+                        onClick={() => {
+                            onClose();                 
+                            window.location.reload();  
+                        }}
+                    >
+                        Close
+                    </button>
                 </div>
                 
                 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -50,5 +51,14 @@ public class CategoryController {
         }catch(Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
+    }
+
+    @PutMapping("/{categoryId}")
+    public ResponseEntity<CategoryResponse> updateCategory(
+            @PathVariable String categoryId,
+            @RequestPart("category") CategoryRequest category,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+
+        return ResponseEntity.ok(categoryService.update(categoryId, category, file));
     }
 }

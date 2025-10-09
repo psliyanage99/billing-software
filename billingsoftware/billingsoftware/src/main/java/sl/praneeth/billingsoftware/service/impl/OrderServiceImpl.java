@@ -10,7 +10,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -142,6 +144,19 @@ public class OrderServiceImpl implements OrderService {
                 .stream()
                 .map(orderEntity -> convertToResponse(orderEntity))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<LocalDate, Double> getWeeklySales(LocalDate startOfWeek, LocalDate endOfWeek) {
+        List<Object[]> results = orderEntityRepository.sumSalesByDateRange(startOfWeek, endOfWeek);
+
+        Map<LocalDate, Double> weeklySales = new HashMap<>();
+        for (Object[] row : results) {
+            LocalDate date = ((java.sql.Date) row[0]).toLocalDate();
+            Double total = (Double) row[1];
+            weeklySales.put(date, total != null ? total : 0.0);
+        }
+        return weeklySales;
     }
 
     private boolean verifyRazorpaySignature(String razorpayOrderId, String razorpayPaymentId, String razorpaySignature) {

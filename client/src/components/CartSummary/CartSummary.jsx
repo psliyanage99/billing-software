@@ -1,5 +1,5 @@
 import './CartSummary.css';
-import { useContext, useState } from "react";
+import { useContext, useState, useRef, useEffect } from "react";
 import { AppContext } from "../../context/AppContext.jsx";
 import ReceiptPopup from "../ReceiptPopup/ReceiptPopup.jsx";
 import { createOrder, deleteOrder } from "../../Service/OrderService.js";
@@ -14,13 +14,14 @@ const CartSummary = ({ customerName, mobileNumber, setMobileNumber, setCustomerN
     const [orderDetails, setOrderDetails] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
 
-    // ✅ NEW STATES
+
     const [cashInputVisible, setCashInputVisible] = useState(false);
+    const cashInputRef = useRef(null);
     const [cashReceived, setCashReceived] = useState("");
     const [balance, setBalance] = useState(0);
 
     const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-    const tax = totalAmount * 0.01;
+    const tax = totalAmount * 0;
     const grandTotal = totalAmount + tax;
 
     const clearAll = () => {
@@ -49,7 +50,7 @@ const CartSummary = ({ customerName, mobileNumber, setMobileNumber, setCustomerN
         }
     };
 
-    // 🟢 When user clicks CASH button → show cash input field
+   
     const handleCashClick = () => {
         if (!customerName || !mobileNumber) {
             toast.error("Please enter customer details");
@@ -62,7 +63,7 @@ const CartSummary = ({ customerName, mobileNumber, setMobileNumber, setCustomerN
         setCashInputVisible(true);
     };
 
-    // 🟢 Capture cash input and calculate balance
+   
     const handleCashChange = (e) => {
         const value = parseFloat(e.target.value) || 0;
         setCashReceived(value);
@@ -70,7 +71,7 @@ const CartSummary = ({ customerName, mobileNumber, setMobileNumber, setCustomerN
     };
 
 
-    // 🟢 Confirm payment after entering cash
+    
     const confirmCashPayment = async () => {
         if (cashReceived < grandTotal) {
             toast.error("Cash is less than total amount");
@@ -106,6 +107,23 @@ const CartSummary = ({ customerName, mobileNumber, setMobileNumber, setCustomerN
         }
     };
 
+    useEffect(() => {
+    if (cashInputVisible && cashInputRef.current) {
+        cashInputRef.current.focus();
+    }
+}, [cashInputVisible]);
+
+useEffect(() => {
+    const handleEnterKey = (e) => {
+        if (e.key === "Enter" && !isProcessing && orderDetails) {
+            placeOrder();
+        }
+    };
+
+    window.addEventListener("keydown", handleEnterKey);
+    return () => window.removeEventListener("keydown", handleEnterKey);
+}, [isProcessing, orderDetails]);
+
     
 
     return (
@@ -123,26 +141,13 @@ const CartSummary = ({ customerName, mobileNumber, setMobileNumber, setCustomerN
                     <span className="text-light">Total:</span>
                     <span className="text-light">Rs.{grandTotal.toFixed(2)}</span>
                 </div>
-
-                {/* 🟢 Show Cash & Balance after input */}
-                {/* {cashReceived > 0 && (
-                    <>
-                        <div className="d-flex justify-content-between mb-2">
-                            <span className="text-light">Cash:</span>
-                            <span className="text-light">Rs.{cashReceived.toFixed(2)}</span>
-                        </div>
-                        <div className="d-flex justify-content-between mb-2">
-                            <span className="text-light">Balance:</span>
-                            <span className="text-light">Rs.{balance.toFixed(2)}</span>
-                        </div>
-                    </>
-                )} */}
             </div>
 
-            {/* 🟢 Cash Input Field */}
+            
             {cashInputVisible && (
                 <div className="mb-3">
                     <input
+                        ref={cashInputRef}
                         type="number"
                         className="form-control"
                         placeholder="Enter cash received"
@@ -150,13 +155,6 @@ const CartSummary = ({ customerName, mobileNumber, setMobileNumber, setCustomerN
                         onChange={handleCashChange}
                         onKeyDown={(e) => e.key === "Enter" && confirmCashPayment()}
                     />
-                    <button
-                        className="btn btn-success mt-2 w-100"
-                        onClick={confirmCashPayment}
-                        disabled={isProcessing}
-                    >
-                        Confirm Cash Payment
-                    </button>
                 </div>
             )}
 
@@ -173,7 +171,7 @@ const CartSummary = ({ customerName, mobileNumber, setMobileNumber, setCustomerN
                     onClick={() => toast.error("Use Razorpay for UPI")}
                     disabled={isProcessing}
                 >
-                    UPI
+                    {isProcessing ? "Processing..." : "Card"}
                 </button>
             </div>
 

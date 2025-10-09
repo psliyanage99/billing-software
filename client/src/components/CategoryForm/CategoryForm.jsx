@@ -78,6 +78,7 @@ const CategoryForm = () => {
                                     placeholder="Category Name"
                                     onChange={onChange}
                                     value={data.name}
+                                    required
                                 />
                             </div>
                             <div className="mb-3">
@@ -100,7 +101,9 @@ const CategoryForm = () => {
                                        id="bgColor" 
                                        onChange={onChange}
                                        value={data.bgColor} 
-                                       placeholder="#000000" />
+                                       placeholder="#000000" 
+                                       
+                                       />
                             </div>
                             <button type="submit" 
                                     disabled={loading}

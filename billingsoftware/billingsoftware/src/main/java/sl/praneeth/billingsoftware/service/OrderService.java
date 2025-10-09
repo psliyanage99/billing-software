@@ -6,6 +6,7 @@ import sl.praneeth.billingsoftware.io.PaymentVerificationRequest;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface OrderService {
 
@@ -22,4 +23,6 @@ public interface OrderService {
     Long countByOrderDate(LocalDate date);
 
     List<OrderResponse> findRecentOrders();
+
+    Map<LocalDate, Double> getWeeklySales(LocalDate startOfWeek, LocalDate endOfWeek);
 }

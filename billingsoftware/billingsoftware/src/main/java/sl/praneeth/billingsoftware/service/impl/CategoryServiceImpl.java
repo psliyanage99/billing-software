@@ -1,5 +1,6 @@
 package sl.praneeth.billingsoftware.service.impl;
 
+import org.springframework.util.StringUtils;
 import sl.praneeth.billingsoftware.entity.CategoryEntity;
 import sl.praneeth.billingsoftware.io.CategoryRequest;
 import sl.praneeth.billingsoftware.io.CategoryResponse;
@@ -12,6 +13,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -25,8 +31,16 @@ public class CategoryServiceImpl implements CategoryService {
     private final ItemRepository itemRepository;
 
     @Override
-    public CategoryResponse add(CategoryRequest request, MultipartFile file) {
+    public CategoryResponse add(CategoryRequest request, MultipartFile file) throws IOException {
         String imgUrl = fileUploadService.uploadFile(file);
+
+        // File upload to local directory
+//        String fileName = UUID.randomUUID().toString()+"."+ StringUtils.getFilenameExtension(file.getOriginalFilename());
+//        Path uploadPath = Paths.get("uploads").toAbsolutePath().normalize();
+//        Files.createDirectories(uploadPath);
+//        Path targetLocation = uploadPath.resolve(fileName);
+//        Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+//        String imgUrl = "http://localhost:8080/api/v1.0/uploads/"+fileName;
         CategoryEntity newCategory = convertToEntity(request);
         newCategory.setImgUrl(imgUrl);
         newCategory = categoryRepository.save(newCategory);
@@ -39,6 +53,31 @@ public class CategoryServiceImpl implements CategoryService {
                 .stream()
                 .map(categoryEntity -> convertToResponse(categoryEntity))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public CategoryResponse update(String categoryId, CategoryRequest request, MultipartFile file) {
+        CategoryEntity existingCategory = categoryRepository.findByCategoryId(categoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found: " + categoryId));
+
+        // If a new image file is provided, replace it
+        if (file != null && !file.isEmpty()) {
+            // Delete old image
+            fileUploadService.deleteFile(existingCategory.getImgUrl());
+            // Upload new image
+            String newImgUrl = fileUploadService.uploadFile(file);
+            existingCategory.setImgUrl(newImgUrl);
+        }
+
+        // Update other fields
+        existingCategory.setName(request.getName());
+        existingCategory.setDescription(request.getDescription());
+        existingCategory.setBgColor(request.getBgColor());
+
+        // Save updated category
+        CategoryEntity updatedCategory = categoryRepository.save(existingCategory);
+
+        return convertToResponse(updatedCategory);
     }
 
     @Override

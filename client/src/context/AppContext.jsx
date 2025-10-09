@@ -14,19 +14,33 @@ export const AppContextProvider = (props) => {
     const addToCart = (item) => {
         const existingItem = cartItems.find(cartItem => cartItem.name === item.name);
         if (existingItem) {
-            setCartItems(cartItems.map(cartItem => cartItem.name === item.name ? {...cartItem, quantity: cartItem.quantity + 1} : cartItem));
+            setCartItems(cartItems.map(cartItem =>
+                cartItem.name === item.name
+                    ? {...cartItem, quantity: cartItem.quantity + 1}
+                    : cartItem
+            ));
         } else {
             setCartItems([...cartItems, {...item, quantity: 1}]);
         }
-    }
+    };
+
+    // New helper: add item by name (for Enter key press in search)
+    const addItemToCartByName = (itemName) => {
+        const item = itemsData.find(i => i.name.toLowerCase() === itemName.toLowerCase());
+        if (item) {
+            addToCart(item);
+        }
+    };
 
     const removeFromCart = (itemId) => {
         setCartItems(cartItems.filter(item => item.itemId !== itemId));
-    }
+    };
 
     const updateQuantity = (itemId, newQuantity) => {
-        setCartItems(cartItems.map(item => item.itemId === itemId ? {...item, quantity: newQuantity} : item));
-    }
+        setCartItems(cartItems.map(item =>
+            item.itemId === itemId ? {...item, quantity: newQuantity} : item
+        ));
+    };
 
     useEffect(() => {
         async function loadData() {
@@ -41,18 +55,17 @@ export const AppContextProvider = (props) => {
             console.log('item response', itemResponse);
             setCategories(response.data);
             setItemsData(itemResponse.data);
-
         }
         loadData();
     }, []);
 
     const setAuthData = (token, role) => {
         setAuth({token, role});
-    }
+    };
 
     const clearCart = () => {
         setCartItems([]);
-    }
+    };
 
     const contextValue = {
         categories,
@@ -62,15 +75,18 @@ export const AppContextProvider = (props) => {
         itemsData,
         setItemsData,
         addToCart,
+        addItemToCartByName, // make available to use in DisplayItems
         cartItems,
         removeFromCart,
         updateQuantity,
         clearCart
-    }
+    };
 
-    return <AppContext.Provider value={contextValue}>
-        {props.children}
-    </AppContext.Provider>
-}
+    return (
+        <AppContext.Provider value={contextValue}>
+            {props.children}
+        </AppContext.Provider>
+    );
+};
 
 export default AppContext;

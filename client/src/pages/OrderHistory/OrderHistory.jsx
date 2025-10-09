@@ -12,7 +12,7 @@ const OrderHistory = () => {
     const [toDate, setToDate] = useState("");
     const [showReport, setShowReport] = useState(false);
 
-    // ✅ Filter orders by keyword and date
+    // Filter orders by keyword and date
     const filteredOrders = orders.filter(order => {
         const keyword = searchTerm.toLowerCase();
         const orderDate = new Date(order.createdAt);
@@ -32,7 +32,7 @@ const OrderHistory = () => {
         return matchesKeyword && matchesDate;
     });
 
-    // ✅ Fetch orders
+    // Fetch orders
     useEffect(() => {
         const fetchOrders = async () => {
             try {
@@ -47,11 +47,11 @@ const OrderHistory = () => {
         fetchOrders();
     }, []);
 
-    // ✅ Format items
+    // Format items
     const formatItems = (items = []) =>
         items.map(item => `${item.name} x ${item.quantity}`).join(', ');
 
-    // ✅ Format date
+    // Format date
     const formatDate = (dateString) => {
         const options = {
             year: 'numeric',
@@ -70,7 +70,7 @@ const OrderHistory = () => {
     return (
         <div className="order-history-container">
 
-            {/* ✅ Header: Title + Search */}
+            
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h2 className="mb-2 text-light">Recent Orders</h2>
 
@@ -88,7 +88,7 @@ const OrderHistory = () => {
                 </div>
             </div>
 
-            {/* ✅ Date Range + Button */}
+            
             <div className="d-flex gap-2 mb-3 flex-wrap">
                 <div>
                     <label className="form-label text-light">From:</label>
@@ -116,7 +116,7 @@ const OrderHistory = () => {
                 </button>
             </div>
 
-            {/* ✅ Orders Table */}
+            
             <div className="table-responsive">
                 <table className="table table-striped table-hover">
                     <thead className="table-dark">
@@ -167,7 +167,7 @@ const OrderHistory = () => {
                 </table>
             </div>
 
-            {/* ✅ Report Popup */}
+            
             {showReport && (
                 <ReportPopup
                     orders={filteredOrders}

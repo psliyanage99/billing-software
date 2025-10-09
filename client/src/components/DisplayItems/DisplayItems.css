@@ -1,0 +1,7 @@
+.item-card-wrapper.selected-item {
+  border: 2px solid #ffc107;
+  border-radius: 10px;
+  transform: scale(1.03);
+  transition: all 0.15s ease;
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.6);
+}

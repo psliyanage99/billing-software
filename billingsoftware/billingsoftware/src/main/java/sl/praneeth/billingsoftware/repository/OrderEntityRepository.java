@@ -26,4 +26,10 @@ public interface OrderEntityRepository extends JpaRepository<OrderEntity, Long> 
     @Query("SELECT o FROM OrderEntity o ORDER BY o.createdAt DESC")
     List<OrderEntity> findRecentOrders(Pageable pageable);
 
+    @Query("SELECT DATE(o.createdAt) as orderDate, SUM(o.grandTotal) " +
+            "FROM OrderEntity o " +
+            "WHERE DATE(o.createdAt) BETWEEN :startDate AND :endDate " +
+            "GROUP BY DATE(o.createdAt)")
+    List<Object[]> sumSalesByDateRange(@Param("startDate") LocalDate startDate,
+                                       @Param("endDate") LocalDate endDate);
 }
