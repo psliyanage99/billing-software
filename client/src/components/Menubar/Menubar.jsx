@@ -23,7 +23,7 @@ const Menubar = () => {
 
     return (
         <nav className="navbar navbar-expand-lg navbar-dark  px-2">
-    <a className="navbar-brand" href="#">
+    <a className="navbar-brand" href="/dashboard">
         <img src={assets.logo} alt="Logo" height="40"/>
     </a>
     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

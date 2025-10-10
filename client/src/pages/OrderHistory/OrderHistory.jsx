@@ -71,26 +71,17 @@ const OrderHistory = () => {
         <div className="order-history-container">
 
             
-            <div className="d-flex justify-content-between align-items-center mb-3">
+            <div className="mb-3">
                 <h2 className="mb-2 text-light">Recent Orders</h2>
-
-                <div className="input-group" style={{ maxWidth: '300px' }}>
-                    <input
-                        type="text"
-                        placeholder="Search by keyword"
-                        className="form-control"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                    <span className="input-group-text bg-warning">
-                        <i className="bi bi-search"></i>
-                    </span>
-                </div>
             </div>
 
             
-            <div className="d-flex gap-2 mb-3 flex-wrap">
-                <div>
+            
+
+        <div className="recent-orders-card">
+            
+            <div className="d-flex gap-2  mx-4 justify-content-between align-items-center">
+                <div className='d-flex justify-content-between align-items-center gap-3'>
                     <label className="form-label text-light">From:</label>
                     <input
                         type="datetime-local"
@@ -98,8 +89,7 @@ const OrderHistory = () => {
                         value={fromDate}
                         onChange={(e) => setFromDate(e.target.value)}
                     />
-                </div>
-                <div>
+                
                     <label className="form-label text-light">To:</label>
                     <input
                         type="datetime-local"
@@ -107,19 +97,32 @@ const OrderHistory = () => {
                         value={toDate}
                         onChange={(e) => setToDate(e.target.value)}
                     />
+                
+                    <button
+                        className="btn btn-success"
+                        onClick={() => setShowReport(true)}
+                    >
+                        Generate 
+                    </button>
+               </div>
+
+                <div className="input-group" style={{ maxWidth: '300px' }}>
+                        <input
+                            type="text"
+                            placeholder="Search by keyword"
+                            className="form-control"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        <span className="input-group-text bg-warning">
+                            <i className="bi bi-search"></i>
+                        </span>
                 </div>
-                <button
-                    className="btn btn-success align-self-end"
-                    onClick={() => setShowReport(true)}
-                >
-                    Generate Report
-                </button>
             </div>
 
-            
-            <div className="table-responsive">
+            <div className="table-responsive mx-4">  
                 <table className="table table-striped table-hover">
-                    <thead className="table-dark">
+                    <thead className="table-head">
                         <tr>
                             <th>Order Id</th>
                             <th>Customer</th>
@@ -165,6 +168,7 @@ const OrderHistory = () => {
                         )}
                     </tbody>
                 </table>
+            </div>
             </div>
 
             
