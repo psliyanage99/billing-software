@@ -4,13 +4,13 @@
     padding: 20px;
     height: calc(100vh - 5rem);
     box-sizing: border-box;
-    background-color: #2C3335;
+    background: linear-gradient(105deg, #000b14, #00243e);
 }
 
 .left-column {
     flex: 0.7;
     border: 1px solid #ccc;
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 16px;
     height: 100%;
     box-sizing: border-box;
@@ -21,7 +21,7 @@
 .right-column{
     flex: 0.3;
     border: 1px solid #ccc;
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 16px;
     height: 100%;
     box-sizing: border-box;

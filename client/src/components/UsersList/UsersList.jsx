@@ -1,3 +1,4 @@
+import './UsersList.css';
 import {useState} from "react";
 import {deleteUser} from "../../Service/UserService.js";
 import toast from "react-hot-toast";
@@ -22,7 +23,7 @@ const UsersList = ({users, setUsers}) => {
 
 
     return (
-        <div className="category-list-container" style={{height:'100vh', overflowY: 'auto', overflowX: 'hidden'}}>
+        <div className="user-list-container" style={{height:'100vh', overflowY: 'auto', overflowX: 'hidden'}}>
             <div className="row pe-2">
                 <div className="input-group mb-3">
                     <input type="text"
@@ -42,7 +43,7 @@ const UsersList = ({users, setUsers}) => {
                 {
                     filteredUsers.map((user, index) => (
                         <div key={index} className="col-12">
-                            <div className="card p-3 bg-dark" style={{maxWidth: '100%'}}>
+                            <div className="user-card card p-3 bg-dark" style={{maxWidth: '100%'}}>
                                 <div className="d-flex align-items-center">
                                     <div className="flex-grow-1">
                                         <h5 className="mb-1 text-white">{user.name}</h5>

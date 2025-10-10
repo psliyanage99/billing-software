@@ -4,7 +4,8 @@ import { assets } from '../../assets/assets.js';
 
 const DisplayCategory = ({selectedCategory, setSelectedCategory, categories}) => {
     return(
-        <div className="row g-3" style={{width: '100%', margin: 0}}>
+        <div className="p-3 pt-0">
+        <div className="row justify-content-between g-3 align-items-center" style={{width: '100%', margin: 0}}>
             <div key="all" className="col-md-3 col-sm-6" style={{padding: '0 10px'}}>
                 <Category 
                     categoryName="All Items"
@@ -27,6 +28,7 @@ const DisplayCategory = ({selectedCategory, setSelectedCategory, categories}) =>
                     />
                 </div>
             ))}
+        </div>
         </div>
     )
 }
