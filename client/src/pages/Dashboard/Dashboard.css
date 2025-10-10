@@ -140,6 +140,17 @@ body, html {
     margin-bottom: 10px;
 }
 
+.rotating-pie {
+  display: inline-block;
+  animation: rotateChart 12s linear infinite;
+  transition: transform 0.3s ease;
+}
+
+.rotating-pie.paused {
+  animation-play-state: paused;
+}
+
+
 .dashboard-loading,
 .dashboard-error {
     display: flex;
